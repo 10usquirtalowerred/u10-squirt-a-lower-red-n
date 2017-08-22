@@ -31,9 +31,9 @@ while (<FILE>) {
 close(FILE);
 
 chomp $count;
-print "Old Count: $count\n";
+#print "Old Count: $count\n";
 $count = $count + 1;
-print "New Count: $count\n";
+#print "New Count: $count\n";
 
 if ( -f "$file" ) {
     unless ( open (FILE, ">>$file") ) {
