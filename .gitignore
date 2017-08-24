@@ -36,3 +36,6 @@ inc/
 
 *.tdy
 *~
+*.bak
+*.LOG
+*.TEE
