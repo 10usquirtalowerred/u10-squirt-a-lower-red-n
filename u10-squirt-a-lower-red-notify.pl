@@ -5,7 +5,33 @@ use warnings;
 use POSIX;
 use WWW::Curl::Easy;
 
-my $DBG = 0;
+my $DBG = 1;
+
+my $groupid   = "33232727";
+my $tokenfile = "../token.txt";
+my $token;
+my $referer = 'https://api.groupme.com/';
+
+unless ( -f $tokenfile ) {
+    die "Cannot find token file \"$tokenfile\": $!\n";
+}
+
+unless ( open( FILE, $tokenfile ) ) {
+    die "Cannot open token file \"$tokenfile\" for reading: $!\n";
+}
+
+while (<FILE>) {
+    $token = $_;
+    chomp $token;
+}
+
+close(FILE);
+
+unless ( $token =~ m/[A-Za-z0-9]{40}/ ) {
+    die "Token \"$token\" is not valid!\n";
+}
+
+my $post_url = $referer . "v3/groups/$groupid/messages?token=$token";
 
 my $currentepoch = time();
 
@@ -169,7 +195,7 @@ foreach my $event_line (@event_lines) {
             print "   Details: $Subject\n";
             print "     Event: $Description\n";
             print "  Location: $Location\n";
-            print "   Map URL: $map_url\n";
+            print "       Map: $map_url\n";
         } ## end if ($DBG)
         my ( $mon, $mday, $year ) = split( /\//, $Start_Date );
         my ( $Twelve_Hour_Start_Time, $AMPM ) = split( / /, $Start_Time );
@@ -185,17 +211,61 @@ foreach my $event_line (@event_lines) {
             print "Local Time: $datetime\n";
         }
 
+        my $POST    = 0;
+        my $message = "";
+
         if ( $onehourlow < $epoch && $epoch < $onehourhigh ) {
+            $POST = 1;
             print "One Hour Notification: $Subject\n";
+            $message = $message . "'" . $Subject . "' is starting in one hour";
         }
 
         if ( $twohourslow < $epoch && $epoch < $twohourshigh ) {
+            $POST = 1;
             print "Two Hours Notification: $Subject\n";
+            $message = $message . "'" . $Subject . "' is starting in two hours";
         }
 
         if ( $onedaylow < $epoch && $epoch < $onedayhigh ) {
+            $POST = 1;
             print "One Day Notification: $Subject\n";
+            $message = $message . "'" . $Subject . "' is starting in one day";
         }
 
+        if ($POST) {
+            my @chars = ( "A" .. "Z", "a" .. "z", "0" .. "9" );
+            my $guid;
+            $guid .= $chars[ rand @chars ] for 1 .. 32;
+
+            $message = $message . "\\n\\n";
+            $message = $message . "      Date: $Start_Date\\n";
+            $message = $message . "      Time: $Start_Time - $End_Time\\n";
+            $message = $message . "   Details: $Subject\\n";
+            $message = $message . "     Event: $Description\\n";
+            $message = $message . "  Location: $Location\\n";
+            $message = $message . "       Map: $map_url\\n";
+
+            print "Message: " . $message . "\n";
+
+            my $jsonmessage = "{\"message\": ";
+            $jsonmessage = $jsonmessage . "{\"source_guid\": \"$guid\", ";
+            $jsonmessage = $jsonmessage . "\"text\": \"$message\"}}";
+            print "JSON Message: " . $jsonmessage . "\n";
+
+            $browser->setopt( CURLOPT_VERBOSE,     0 );
+            $browser->setopt( CURLOPT_HEADER,      0 );
+            $browser->setopt( CURLOPT_NOPROGRESS,  1 );
+            $browser->setopt( CURLOPT_TCP_NODELAY, 1 );
+            $browser->setopt( CURLOPT_URL,         $post_url );
+            $browser->setopt( CURLOPT_POST,        1 );
+            $browser->setopt( CURLOPT_POSTFIELDS,  $jsonmessage );
+            my @postheaders = ();
+            $postheaders[0] = "Content-Type: application/json";
+            $browser->setopt( CURLOPT_HTTPHEADER, \@postheaders );
+            $browser->setopt( CURLOPT_REFERER,    $referer );
+            my $retcode = $browser->perform;
+
+            print "\ndone.\n";
+        } ## end if ($POST)
     } ## end if ( $Start_Time ne ""...)
 } ## end foreach my $event_line (@event_lines)
