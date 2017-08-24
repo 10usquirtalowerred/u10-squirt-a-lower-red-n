@@ -59,8 +59,9 @@ my $guid;
 $guid .= $chars[ rand @chars ] for 1 .. 32;
 
 #print "$message\n";
-my $jsonmessage =
-  "{\"message\": {\"source_guid\": \"$guid\", \"text\": \"$message\"}}";
+my $jsonmessage = "{\"message\": ";
+$jsonmessage = $jsonmessage . "{\"source_guid\": \"$guid\", ";
+$jsonmessage = $jsonmessage . "\"text\": \"$message\"}}";
 print "$jsonmessage\n";
 
 my $browser = WWW::Curl::Easy->new;

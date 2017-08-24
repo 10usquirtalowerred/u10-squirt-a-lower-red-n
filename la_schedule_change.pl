@@ -31,8 +31,8 @@ print "One Day Range: "
   . scalar localtime($onedaylow) . " to "
   . scalar localtime($onedayhigh) . "\n";
 
-my $calendar_url =
-  "http://leagueathletics.com/MySchedule.asp?teams=462604&org=RYHA.ORG";
+my $calendar_url = "http://leagueathletics.com/MySchedule.asp?";
+$calendar_url = $calendar_url . "teams=462604&org=RYHA.ORG";
 my $calendar_data;
 
 my $browser = WWW::Curl::Easy->new;
@@ -59,12 +59,13 @@ my @event_lines = split( /\n/, $calendar_data );
 foreach my $event_line (@event_lines) {
 
     #print "$event_line\n";
-    my ( $Subject, $Start_Date, $Start_Time, $End_Date, $End_Time,
+    my (
+        $Subject, $Start_Date, $Start_Time, $End_Date, $End_Time,
         $All_day_event, $Reminder_on_off, $Reminder_Date, $Reminder_Time,
         $Meeting_Organizer, $Required_Attendees, $Optional_Attendees,
         $Meeting_Resources, $Billing_Information, $Categories, $Description,
-        $Location, $Mileage, $Priority, $Private, $Sensitivity, $Show_time_as )
-      = split( /,/, $event_line );
+        $Location, $Mileage, $Priority, $Private, $Sensitivity, $Show_time_as
+    ) = split( /,/, $event_line );
 
     if ( $Start_Time ne "" && $Start_Time ne "Start Time" ) {
 

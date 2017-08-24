@@ -36,6 +36,7 @@ inc/
 
 *.tdy
 *~
-*.bak
-*.LOG
-*.TEE
+*.pl.bak
+*.pl.ERR
+*.pl.LOG
+*.pl.TEE
