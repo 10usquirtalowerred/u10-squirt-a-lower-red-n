@@ -5,6 +5,8 @@ use warnings;
 use POSIX;
 use WWW::Curl::Easy;
 
+my $DBG = 1;
+
 my $currentepoch = time();
 
 my $runmins  = 5;
@@ -21,16 +23,6 @@ my $twohourslow  = $currentepoch + $twohours - $range;
 my $onedayhigh   = $currentepoch + $oneday + $range;
 my $onedaylow    = $currentepoch + $oneday - $range;
 
-print "One Hour Range: "
-  . scalar localtime($onehourlow) . " to "
-  . scalar localtime($onehourhigh) . "\n";
-print "Two Hours Range: "
-  . scalar localtime($twohourslow) . " to "
-  . scalar localtime($twohourshigh) . "\n";
-print "One Day Range: "
-  . scalar localtime($onedaylow) . " to "
-  . scalar localtime($onedayhigh) . "\n";
-
 my $calendar_url = "http://leagueathletics.com/MySchedule.asp?";
 $calendar_url = $calendar_url . "teams=462604&org=RYHA.ORG";
 my $calendar_data;
@@ -46,13 +38,106 @@ $browser->setopt( CURLOPT_REFERER,     $calendar_url );
 $browser->setopt( CURLOPT_WRITEDATA,   \$calendar_data );
 my $retcode = $browser->perform;
 
-$calendar_data = $calendar_data
-  . "Event One,8/23/2017,3:45:00 PM,8/23/2017,4:45:00 PM,FALSE,FALSE,8/23/2017,2:45:00 PM,,,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,Normal,FALSE,Normal,4\n";
-$calendar_data = $calendar_data
-  . "Event Two,8/23/2017,4:45:00 PM,8/23/2017,5:45:00 PM,FALSE,FALSE,8/23/2017,3:45:00 PM,,,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,Normal,FALSE,Normal,4\n";
-$calendar_data = $calendar_data
-  . "Event Three,8/24/2017,2:45:00 PM,8/24/2017,3:45:00 PM,FALSE,FALSE,8/24/2017,1:45:00 PM,,,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,Normal,FALSE,Normal,4\n";
-$calendar_data = $calendar_data . "\n";
+if ($DBG) {
+
+    my ( $h1sec, $h1min, $h1hour, $h1mday, $h1mon, $h1year, $h1wday, $h1yday,
+        $h1isdst ) = localtime( $currentepoch + $onehour );
+    my ( $h2sec, $h2min, $h2hour, $h2mday, $h2mon, $h2year, $h2wday, $h2yday,
+        $h2isdst ) = localtime( $currentepoch + $twohours );
+    my ( $d1sec, $d1min, $d1hour, $d1mday, $d1mon, $d1year, $d1wday, $d1yday,
+        $d1isdst ) = localtime( $currentepoch + $oneday );
+
+    $h1year = $h1year + 1900;
+    $h1mon  = $h1mon + 1;
+    my $h1AMPM = "AM";
+    if ( $h1hour > 11 ) {
+        $h1AMPM = "PM";
+    }
+    if ( $h1hour == 0 ) {
+        $h1hour = 12;
+    }
+    if ( $h1hour > 12 ) {
+        $h1hour = $h1hour - 12;
+    }
+    my $h1end = $h1hour + 1;
+    $h1min = sprintf( "%02d", $h1min );
+
+    $h2year = $h2year + 1900;
+    $h2mon  = $h2mon + 1;
+    my $h2AMPM = "AM";
+    if ( $h2hour > 11 ) {
+        $h2AMPM = "PM";
+    }
+    if ( $h2hour == 0 ) {
+        $h2hour = 12;
+    }
+    if ( $h2hour > 12 ) {
+        $h2hour = $h2hour - 12;
+    }
+    my $h2end = $h2hour + 1;
+    $h2min = sprintf( "%02d", $h2min );
+
+    $d1year = $d1year + 1900;
+    $d1mon  = $d1mon + 1;
+    my $d1AMPM = "AM";
+    if ( $d1hour > 11 ) {
+        $d1AMPM = "PM";
+    }
+    if ( $d1hour == 0 ) {
+        $d1hour = 12;
+    }
+    if ( $d1hour > 12 ) {
+        $d1hour = $d1hour - 12;
+    }
+    my $d1end = $d1hour + 1;
+    $d1min = sprintf( "%02d", $d1min );
+
+    print "One Hour Range: "
+      . scalar localtime($onehourlow) . " to "
+      . scalar localtime($onehourhigh) . "\n";
+    print "Two Hours Range: "
+      . scalar localtime($twohourslow) . " to "
+      . scalar localtime($twohourshigh) . "\n";
+    print "One Day Range: "
+      . scalar localtime($onedaylow) . " to "
+      . scalar localtime($onedayhigh) . "\n";
+
+    $calendar_data = $calendar_data . "Event One,";
+    $calendar_data =
+      $calendar_data . "$h1mon/$h1mday/$h1year,$h1hour:$h1min:00 $h1AMPM,";
+    $calendar_data =
+      $calendar_data . "$h1mon/$h1mday/$h1year,$h1end:$h1min:00 $h1AMPM,";
+    $calendar_data = $calendar_data . "FALSE,FALSE,";
+    $calendar_data =
+      $calendar_data . "$h1mon/$h1mday/$h1year,$h1hour:$h1min:00 $h1AMPM,";
+    $calendar_data =
+      $calendar_data . ",,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,";
+    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\n";
+
+    $calendar_data = $calendar_data . "Event Two,";
+    $calendar_data =
+      $calendar_data . "$h2mon/$h2mday/$h2year,$h2hour:$h2min:00 $h2AMPM,";
+    $calendar_data =
+      $calendar_data . "$h2mon/$h2mday/$h2year,$h2end:$h2min:00 $h2AMPM,";
+    $calendar_data = $calendar_data . "FALSE,FALSE,";
+    $calendar_data =
+      $calendar_data . "$h2mon/$h2mday/$h2year,$h2hour:$h2min:00 $h2AMPM,";
+    $calendar_data =
+      $calendar_data . ",,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,";
+    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\n";
+
+    $calendar_data = $calendar_data . "Event Three,";
+    $calendar_data =
+      $calendar_data . "$d1mon/$d1mday/$d1year,$d1hour:$d1min:00 $d1AMPM,";
+    $calendar_data =
+      $calendar_data . "$d1mon/$d1mday/$d1year,$d1end:$d1min:00 $d1AMPM,";
+    $calendar_data = $calendar_data . "FALSE,FALSE,";
+    $calendar_data =
+      $calendar_data . "$d1mon/$d1mday/$d1year,$d1hour:$d1min:00 $d1AMPM,";
+    $calendar_data =
+      $calendar_data . ",,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,";
+    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\n";
+} ## end if ($DBG)
 
 my @event_lines = split( /\n/, $calendar_data );
 
@@ -69,24 +154,30 @@ foreach my $event_line (@event_lines) {
 
     if ( $Start_Time ne "" && $Start_Time ne "Start Time" ) {
 
-#print "$Subject\n$Start_Date\n$Start_Time\n$End_Date\n$End_Time\n$All_day_event\n$Reminder_on_off\n$Reminder_Date\n$Reminder_Time\n$Meeting_Organizer\n$Required_Attendees\n$Optional_Attendees\n$Meeting_Resources\n$Billing_Information\n$Categories\n$Description\n$Location\n$Mileage\n$Priority\n$Private\n$Sensitivity\n$Show_time_as\n\n";
-        print "\n";
-        print "      Date: $Start_Date\n";
-        print "      Time: $Start_Time - $End_Time\n";
-        print "   Details: $Subject\n";
-        print "     Event: $Description\n";
-        print "  Location: $Location\n";
+        my $map_url = "https://www.google.com/maps/search/" . $Location;
+        $map_url =~ s/\ /\+/g;
+        if ($DBG) {
+            print "\n";
+            print "      Date: $Start_Date\n";
+            print "      Time: $Start_Time - $End_Time\n";
+            print "   Details: $Subject\n";
+            print "     Event: $Description\n";
+            print "  Location: $Location\n";
+            print "   Map URL: $map_url\n";
+        } ## end if ($DBG)
         my ( $mon, $mday, $year ) = split( /\//, $Start_Date );
         my ( $Twelve_Hour_Start_Time, $AMPM ) = split( / /, $Start_Time );
         my ( $hour, $min, $sec ) = split( /:/, $Twelve_Hour_Start_Time );
 
-        if ( $AMPM eq "PM" ) {
+        if ( $AMPM eq "PM" && $hour != 12 ) {
             $hour = $hour + 12;
         }
         my $epoch = mktime( $sec, $min, $hour, $mday, $mon - 1, $year - 1900 );
-        print "     Epoch: $epoch\n";
         my $datetime = scalar localtime($epoch);
-        print "Local Time: $datetime\n";
+        if ($DBG) {
+            print "     Epoch: $epoch\n";
+            print "Local Time: $datetime\n";
+        }
 
         if ( $onehourlow < $epoch && $epoch < $onehourhigh ) {
             print "One Hour Notification: $Subject\n";
