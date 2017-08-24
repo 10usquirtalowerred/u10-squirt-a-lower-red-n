@@ -3,7 +3,7 @@
 use strict;
 use warnings;
 
-my $file = "counter.txt";
+my $file = "/opt/app-root/src/counter.txt";
 my $count = 0;
 
 unless ( -f "$file" ) {
