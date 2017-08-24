@@ -5,9 +5,9 @@ use warnings;
 use POSIX;
 use WWW::Curl::Easy;
 
-my $DBG = 1;
+my $DBG = 0;
 
-my $groupid   = "33232727";
+my $groupid   = "33222336";
 my $tokenfile = "../token.txt";
 my $token;
 my $referer = 'https://api.groupme.com/';
