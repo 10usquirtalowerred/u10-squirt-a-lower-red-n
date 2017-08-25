@@ -266,6 +266,11 @@ foreach my $event_line (@event_lines) {
             $message = $message . "  Location: $Location\\n";
             $message = $message . "       Map: $map_url\\n";
 
+            $message =~ s/\</&#60;/g;
+            $message =~ s/\>/&#62;/g;
+            $message =~ s/\"/&#34;/g;
+            $message =~ s/\'/&#39;/g;
+
             print "Message: " . $message . "\n";
 
             my $jsonmessage = "{\"message\": ";
