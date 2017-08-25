@@ -3,11 +3,15 @@
 use strict;
 use warnings;
 use POSIX;
+use Text::CSV;
 use WWW::Curl::Easy;
 
 my $DBG = 0;
 
-my $groupid   = "33222336";
+my $groupid = "33222336";
+if ($DBG) {
+    $groupid = "33232727";
+}
 my $tokenfile = "../token.txt";
 my $token;
 my $referer = 'https://api.groupme.com/';
@@ -144,7 +148,7 @@ if ($DBG) {
       $calendar_data . "$h1mon/$h1mday/$h1year,$h1hour:$h1min:00 $h1AMPM,";
     $calendar_data =
       $calendar_data . ",,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,";
-    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\n";
+    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\r\n";
 
     $calendar_data = $calendar_data . "Event Two,";
     $calendar_data =
@@ -156,7 +160,7 @@ if ($DBG) {
       $calendar_data . "$h2mon/$h2mday/$h2year,$h2hour:$h2min:00 $h2AMPM,";
     $calendar_data =
       $calendar_data . ",,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,";
-    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\n";
+    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\r\n";
 
     $calendar_data = $calendar_data . "Event Three,";
     $calendar_data =
@@ -168,21 +172,38 @@ if ($DBG) {
       $calendar_data . "$d1mon/$d1mday/$d1year,$d1hour:$d1min:00 $d1AMPM,";
     $calendar_data =
       $calendar_data . ",,,,,10U Squirt A Lower Red - ,Practice - ,Cary,,";
-    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\n";
+    $calendar_data = $calendar_data . "Normal,FALSE,Normal,4\r\n";
 } ## end if ($DBG)
 
-my @event_lines = split( /\n/, $calendar_data );
+my @event_lines = split( /\r\n/, $calendar_data );
+
+my $csv = Text::CSV->new(
+    { binary => 1, allow_loose_quotes => 1, allow_loose_escapes => 1 }
+  )    # should set binary attribute.
+  or die "Cannot use CSV: " . Text::CSV->error_diag();
 
 foreach my $event_line (@event_lines) {
 
-    #print "$event_line\n";
+    if ($DBG) {
+        print "$event_line\n";
+    }
+
+    my $status = $csv->parse($event_line);
+
+    if ($DBG) {
+        print "CSV Status: $status\n";
+        unless ($status) {
+            print $csv->error_diag() . "\n\n";
+        }
+    } ## end if ($DBG)
+
     my (
         $Subject, $Start_Date, $Start_Time, $End_Date, $End_Time,
         $All_day_event, $Reminder_on_off, $Reminder_Date, $Reminder_Time,
         $Meeting_Organizer, $Required_Attendees, $Optional_Attendees,
         $Meeting_Resources, $Billing_Information, $Categories, $Description,
         $Location, $Mileage, $Priority, $Private, $Sensitivity, $Show_time_as
-    ) = split( /,/, $event_line );
+    ) = $csv->fields();
 
     if ( $Start_Time ne "" && $Start_Time ne "Start Time" ) {
 
@@ -237,20 +258,19 @@ foreach my $event_line (@event_lines) {
             my $guid;
             $guid .= $chars[ rand @chars ] for 1 .. 32;
 
-            $message = $message . "\n\n";
-            $message = $message . "      Date: $Start_Date\n";
-            $message = $message . "      Time: $Start_Time - $End_Time\n";
-            $message = $message . "   Details: $Subject\n";
-            $message = $message . "     Event: $Description\n";
-            $message = $message . "  Location: $Location\n";
-            $message = $message . "       Map: $map_url\n";
+            $message = $message . "\\n\\n";
+            $message = $message . "      Date: $Start_Date\\n";
+            $message = $message . "      Time: $Start_Time - $End_Time\\n";
+            $message = $message . "   Details: $Subject\\n";
+            $message = $message . "     Event: $Description\\n";
+            $message = $message . "  Location: $Location\\n";
+            $message = $message . "       Map: $map_url\\n";
 
             print "Message: " . $message . "\n";
 
             my $jsonmessage = "{\"message\": ";
             $jsonmessage = $jsonmessage . "{\"source_guid\": \"$guid\", ";
             $jsonmessage = $jsonmessage . "\"text\": \"$message\"}}";
-            $jsonmessage =~ s/\\/\\\\/g;
 
             print "JSON Message: " . $jsonmessage . "\n";
 
