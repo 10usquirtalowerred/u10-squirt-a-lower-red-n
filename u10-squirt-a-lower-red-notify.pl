@@ -237,19 +237,21 @@ foreach my $event_line (@event_lines) {
             my $guid;
             $guid .= $chars[ rand @chars ] for 1 .. 32;
 
-            $message = $message . "\\n\\n";
-            $message = $message . "      Date: $Start_Date\\n";
-            $message = $message . "      Time: $Start_Time - $End_Time\\n";
-            $message = $message . "   Details: $Subject\\n";
-            $message = $message . "     Event: $Description\\n";
-            $message = $message . "  Location: $Location\\n";
-            $message = $message . "       Map: $map_url\\n";
+            $message = $message . "\n\n";
+            $message = $message . "      Date: $Start_Date\n";
+            $message = $message . "      Time: $Start_Time - $End_Time\n";
+            $message = $message . "   Details: $Subject\n";
+            $message = $message . "     Event: $Description\n";
+            $message = $message . "  Location: $Location\n";
+            $message = $message . "       Map: $map_url\n";
 
             print "Message: " . $message . "\n";
 
             my $jsonmessage = "{\"message\": ";
             $jsonmessage = $jsonmessage . "{\"source_guid\": \"$guid\", ";
             $jsonmessage = $jsonmessage . "\"text\": \"$message\"}}";
+            $jsonmessage =~ s/\\/\\\\/g;
+
             print "JSON Message: " . $jsonmessage . "\n";
 
             $browser->setopt( CURLOPT_VERBOSE,     0 );
