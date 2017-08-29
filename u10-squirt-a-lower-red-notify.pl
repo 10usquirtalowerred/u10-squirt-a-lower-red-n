@@ -269,7 +269,6 @@ foreach my $event_line (@event_lines) {
             $message =~ s/\</&#60;/g;
             $message =~ s/\>/&#62;/g;
             $message =~ s/\"/&#34;/g;
-            $message =~ s/\'/&#39;/g;
 
             print "Message: " . $message . "\n";
 
