@@ -6,6 +6,30 @@ use Data::Dumper;
 use JSON;
 use WWW::Curl::Easy;
 
+my $posted = "jrcanespostedresults.txt";
+
+unless ( -f $posted ) {
+    unless ( open( POSTED, ">$posted" ) ) {
+        die "Cannot open file $posted for writing: $!\n";
+    }
+    close(POSTED);
+} ## end unless ( -f $posted )
+
+unless ( open( POSTED, "$posted" ) ) {
+    die "Cannot open file $posted for reading: $!\n";
+}
+
+my @posted = (<POSTED>);
+
+close(POSTED);
+
+print "Already posted results...";
+foreach my $posted (@posted) {
+    chomp $posted;
+    print " $posted";
+}
+print ".\n";
+
 my $referer = 'https://api.leagueathletics.com/';
 my $season  = 19149;
 my $org     = "RYHA.ORG";
@@ -76,7 +100,15 @@ foreach my $division (@$divisions) {
                     my $homeassocid = $$home{associd};
                     my $homescore   = $$home{score};
 
-                    if ( defined $awayscore && defined $homescore ) {
+                    my $alreadyposted = 0;
+                    if ( grep( /^$gameid$/, @posted ) ) {
+                        $alreadyposted = 1;
+                    }
+
+                    if (   defined $awayscore
+                        && defined $homescore
+                        && $alreadyposted == 0 )
+                    {
 
                         print
                           "================================================== "
@@ -150,6 +182,14 @@ foreach my $division (@$divisions) {
 
                         $wlt =~ s/\ \ /\ /g;
                         print "$wlt at $facilityname $url\n";
+
+                        unless ( open( POSTED, ">>$posted" ) ) {
+                            die "Cannot open file $posted for appending: $!\n";
+                        }
+
+                        print POSTED $gameid . "\n";
+
+                        close(POSTED);
                     } ## end if ( defined $awayscore...)
                 } ## end foreach my $game (@$games)
             } ## end unless ($error)
