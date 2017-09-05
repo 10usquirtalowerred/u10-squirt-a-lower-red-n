@@ -28,27 +28,15 @@ my $retcode = $browser->perform;
 
 my $divisions = decode_json $divisions_data;
 
-#print Dumper $divisions;
-
 foreach my $division (@$divisions) {
-
-    #print Dumper $division;
 
     my $SubDivisions = $$division{SubDivisions};
 
-    #print Dumper $SubDivisions;
-
     foreach my $SubDivision (@$SubDivisions) {
-
-        #print Dumper $SubDivision;
 
         my $Teams = $$SubDivision{Teams};
 
-        #print Dumper $Teams;
-
         foreach my $Team (@$Teams) {
-
-            #print Dumper $Team;
 
             my $ID   = $$Team{ID};
             my $Name = $$Team{Name};
@@ -66,21 +54,15 @@ foreach my $division (@$divisions) {
 
             my $results = decode_json $results_data;
 
-            #print Dumper $results;
-
             my $error = $$results{error};
 
             unless ($error) {
                 my $result = $$results{results};
 
-                #print Dumper $result;
                 my $games = $$result{games};
-
-                #print Dumper $games;
 
                 foreach my $game (@$games) {
 
-                    #print Dumper $game;
                     my $away     = $$game{away};
                     my $facility = $$game{facility};
                     my $gameid   = $$game{id};
