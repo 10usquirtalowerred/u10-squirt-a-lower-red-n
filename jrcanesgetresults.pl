@@ -76,7 +76,7 @@ foreach my $division (@$divisions) {
                 #print Dumper $result;
                 my $games = $$result{games};
 
-#print Dumper $games;
+                #print Dumper $games;
 
                 foreach my $game (@$games) {
 
