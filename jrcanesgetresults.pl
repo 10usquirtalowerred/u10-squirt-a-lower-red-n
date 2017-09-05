@@ -4,9 +4,12 @@ use strict;
 use warnings;
 use Data::Dumper;
 use JSON;
+use Net::Twitter::Lite::WithAPIv1_1;
+use Scalar::Util 'blessed';
 use WWW::Curl::Easy;
 
-my $posted = "jrcanespostedresults.txt";
+my $posted   = "jrcanespostedresults.txt";
+my $authfile = "../twitterauth.txt";
 
 unless ( -f $posted ) {
     unless ( open( POSTED, ">$posted" ) ) {
@@ -29,6 +32,35 @@ foreach my $posted (@posted) {
     print " $posted";
 }
 print ".\n";
+
+my %auth;
+
+unless ( open( AUTH, "$authfile" ) ) {
+    die "cannot open $authfile for reading: $!\n";
+}
+
+while (<AUTH>) {
+    if ( $_ =~ m/=/ ) {
+        $_ =~ s/\ //g;
+        my ( $key, $value ) = split( /=/, $_ );
+        chomp $value;
+        $auth{$key} = $value;
+    } ## end if ( $_ =~ m/=/ )
+} ## end while (<AUTH>)
+
+close(AUTH);
+
+my $consumer_key    = "$auth{consumer_key}";
+my $consumer_secret = "$auth{consumer_secret}";
+my $token           = "$auth{token}";
+my $token_secret    = "$auth{token_secret}";
+
+my $nt = Net::Twitter::Lite::WithAPIv1_1->new(
+    consumer_key        => $consumer_key,
+    consumer_secret     => $consumer_secret,
+    access_token        => $token,
+    access_token_secret => $token_secret,
+);
 
 my $referer = 'https://api.leagueathletics.com/';
 my $season  = 19149;
@@ -181,7 +213,9 @@ foreach my $division (@$divisions) {
                         }
 
                         $wlt =~ s/\ \ /\ /g;
-                        print "$wlt at $facilityname $url\n";
+                        my $tweet = "$wlt at $facilityname $url";
+                        print "Posting: " . $tweet . "\n";
+                        my $result = $nt->update("$tweet");
 
                         unless ( open( POSTED, ">>$posted" ) ) {
                             die "Cannot open file $posted for appending: $!\n";
@@ -190,10 +224,15 @@ foreach my $division (@$divisions) {
                         print POSTED $gameid . "\n";
 
                         close(POSTED);
+                        sleep(1);
                     } ## end if ( defined $awayscore...)
+                    sleep(1);
                 } ## end foreach my $game (@$games)
+                sleep(1);
             } ## end unless ($error)
             sleep(1);
         } ## end foreach my $Team (@$Teams)
+        sleep(1);
     } ## end foreach my $SubDivision (@$SubDivisions)
+    sleep(1);
 } ## end foreach my $division (@$divisions)
