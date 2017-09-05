@@ -67,9 +67,7 @@ foreach my $division (@$divisions) {
                     my $facility = $$game{facility};
                     my $gameid   = $$game{id};
                     my $home     = $$game{home};
-                    print "================================================== "
-                      . $gameid
-                      . " ==================================================\n";
+
                     my $awayname    = $$away{name};
                     my $awayassocid = $$away{associd};
                     my $awayscore   = $$away{score};
@@ -77,6 +75,12 @@ foreach my $division (@$divisions) {
                     my $homename    = $$home{name};
                     my $homeassocid = $$home{associd};
                     my $homescore   = $$home{score};
+
+		    if ( defined $awayscore && defined $homescore ) {
+		    
+                    print "================================================== "
+                      . $gameid
+                      . " ==================================================\n";
 
                     my $facilityname = $$facility{name};
 
@@ -99,55 +103,55 @@ foreach my $division (@$divisions) {
                         $weare = "neither";
                     }
 
+		    my $wa = " won against ";
+		    my $tw = " tied with ";
+		    my $lt = " lost to ";
                     my $wlt;
+		    my $score;
+		    my $url = "http://ryha.org/results.asp?";
+		    $url = $url . "team=" . $ID . "&org=RYHA.ORG";
                     if ( $weare eq "away" ) {
                         if ( $awayscore > $homescore ) {
-                            $wlt =
-"$awayname won against $homename $awayscore-$homescore";
+			    $score = " $awayscore-$homescore";
+                            $wlt = $awayname . $wa . $homename . $score;
                         } elsif ( $awayscore == $homescore ) {
-                            $wlt =
-"$awayname tied with $homename $awayscore-$homescore";
+			    $score = " $awayscore-$homescore";
+                            $wlt = $awayname . $tw . $homename . $score;
                         } elsif ( $awayscore < $homescore ) {
-                            $wlt =
-"$awayname lost to $homename $awayscore-$homescore";
+			    $score = " $awayscore-$homescore";
+                            $wlt = $awayname . $lt . $homename . $score;
                         }
                     } elsif ( $weare eq "both" || $weare eq "neither" ) {
                         if ( $awayscore > $homescore ) {
-                            $wlt =
-"$awayname won against $homename $awayscore-$homescore";
+			    $score = " $awayscore-$homescore";
+                            $wlt = $awayname . $wa . $homename . $score;
                         } elsif ( $awayscore == $homescore ) {
-                            $wlt =
-"$homename tied with $awayname $homescore-$awayscore";
+			    $score = " $homescore-$awayscore";
+                            $wlt = $homename . $tw . $awayname . $score;
                         } elsif ( $awayscore < $homescore ) {
-                            $wlt =
-"$homename won against $awayname $homescore-$awayscore";
+			    $score = " $homescore-$awayscore";
+                            $wlt = $homename . $wa . $awayname . $score;
                         }
                     } elsif ( $weare eq "home" ) {
                         if ( $awayscore > $homescore ) {
-                            $wlt =
-"$homename lost to $awayname $homescore-$awayscore";
+			    $score = " $homescore-$awayscore";
+                            $wlt = $homename . $lt . $awayname . $score;
                         } elsif ( $awayscore == $homescore ) {
-                            $wlt =
-"$homename tied with $awayname $homescore-$awayscore";
+			    $score = " $homescore-$awayscore";
+                            $wlt = $homename . $tw . $awayname . $score;
                         } elsif ( $awayscore < $homescore ) {
-                            $wlt =
-"$homename won against $awayname $homescore-$awayscore";
+			    $score = " $homescore-$awayscore";
+                            $wlt = $homename . $wa . $awayname . $score;
                         }
                     } else {
                         die "This cannot happen!\n";
                     }
 
                     $wlt =~ s/\ \ /\ /g;
-                    print "$wlt at $facilityname\n";
-
-                    #foreach my $key (keys %$game) {
-                    #print $key . "\n";
-                    #print $key . ' = ' . Dumper $$game{$key};
-                    #}
+                    print "$wlt at $facilityname $url\n";
+		    }
                 } ## end foreach my $game (@$games)
-
             } ## end unless ($error)
-
             sleep(1);
         } ## end foreach my $Team (@$Teams)
     } ## end foreach my $SubDivision (@$SubDivisions)
