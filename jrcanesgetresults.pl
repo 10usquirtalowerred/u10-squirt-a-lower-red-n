@@ -7,10 +7,11 @@ use JSON;
 use WWW::Curl::Easy;
 
 my $referer = 'https://api.leagueathletics.com/';
-my $season = 19149;
-my $org = "RYHA.ORG";
+my $season  = 19149;
+my $org     = "RYHA.ORG";
 
-my $divisions_url = $referer . "api/divisions?season=" . $season . "&org=" . $org;
+my $divisions_url =
+  $referer . "api/divisions?season=" . $season . "&org=" . $org;
 
 my $divisions_data;
 
@@ -25,27 +26,33 @@ $browser->setopt( CURLOPT_REFERER,     $referer );
 $browser->setopt( CURLOPT_WRITEDATA,   \$divisions_data );
 my $retcode = $browser->perform;
 
-my $divisions  = decode_json $divisions_data;
+my $divisions = decode_json $divisions_data;
+
 #print Dumper $divisions;
 
 foreach my $division (@$divisions) {
+
     #print Dumper $division;
 
     my $SubDivisions = $$division{SubDivisions};
+
     #print Dumper $SubDivisions;
 
-    foreach my $SubDivision ( @$SubDivisions ) {
-	#print Dumper $SubDivision;
+    foreach my $SubDivision (@$SubDivisions) {
 
-	my $Teams = $$SubDivision{Teams};
-	#print Dumper $Teams;
+        #print Dumper $SubDivision;
 
-	foreach my $Team ( @$Teams ) {
-	    #print Dumper $Team;
+        my $Teams = $$SubDivision{Teams};
 
-	    my $ID = $$Team{ID};
-	    my $Name = $$Team{Name};
-	    print "$ID = $Name\n";
-	}
-    }
-}
+        #print Dumper $Teams;
+
+        foreach my $Team (@$Teams) {
+
+            #print Dumper $Team;
+
+            my $ID   = $$Team{ID};
+            my $Name = $$Team{Name};
+            print "$ID = $Name\n";
+        } ## end foreach my $Team (@$Teams)
+    } ## end foreach my $SubDivision (@$SubDivisions)
+} ## end foreach my $division (@$divisions)
