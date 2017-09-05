@@ -76,80 +76,81 @@ foreach my $division (@$divisions) {
                     my $homeassocid = $$home{associd};
                     my $homescore   = $$home{score};
 
-		    if ( defined $awayscore && defined $homescore ) {
-		    
-                    print "================================================== "
-                      . $gameid
-                      . " ==================================================\n";
+                    if ( defined $awayscore && defined $homescore ) {
 
-                    my $facilityname = $$facility{name};
+                        print
+                          "================================================== "
+                          . $gameid
+                          . " ==================================================\n";
 
-                    my $weare;
+                        my $facilityname = $$facility{name};
 
-                    unless ($awayassocid) {
-                        $awayassocid = 0;
-                    }
-                    unless ($homeassocid) {
-                        $homeassocid = 0;
-                    }
-                    if ( $awayassocid == 3735 ) {
-                        $weare = "away";
-                        if ( $homeassocid == 3735 ) {
-                            $weare = "both";
+                        my $weare;
+
+                        unless ($awayassocid) {
+                            $awayassocid = 0;
                         }
-                    } elsif ( $homeassocid == 3735 ) {
-                        $weare = "home";
-                    } else {
-                        $weare = "neither";
-                    }
+                        unless ($homeassocid) {
+                            $homeassocid = 0;
+                        }
+                        if ( $awayassocid == 3735 ) {
+                            $weare = "away";
+                            if ( $homeassocid == 3735 ) {
+                                $weare = "both";
+                            }
+                        } elsif ( $homeassocid == 3735 ) {
+                            $weare = "home";
+                        } else {
+                            $weare = "neither";
+                        }
 
-		    my $wa = " won against ";
-		    my $tw = " tied with ";
-		    my $lt = " lost to ";
-                    my $wlt;
-		    my $score;
-		    my $url = "http://ryha.org/results.asp?";
-		    $url = $url . "team=" . $ID . "&org=RYHA.ORG";
-                    if ( $weare eq "away" ) {
-                        if ( $awayscore > $homescore ) {
-			    $score = " $awayscore-$homescore";
-                            $wlt = $awayname . $wa . $homename . $score;
-                        } elsif ( $awayscore == $homescore ) {
-			    $score = " $awayscore-$homescore";
-                            $wlt = $awayname . $tw . $homename . $score;
-                        } elsif ( $awayscore < $homescore ) {
-			    $score = " $awayscore-$homescore";
-                            $wlt = $awayname . $lt . $homename . $score;
+                        my $wa = " won against ";
+                        my $tw = " tied with ";
+                        my $lt = " lost to ";
+                        my $wlt;
+                        my $score;
+                        my $url = "http://ryha.org/results.asp?";
+                        $url = $url . "team=" . $ID . "&org=RYHA.ORG";
+                        if ( $weare eq "away" ) {
+                            if ( $awayscore > $homescore ) {
+                                $score = " $awayscore-$homescore";
+                                $wlt   = $awayname . $wa . $homename . $score;
+                            } elsif ( $awayscore == $homescore ) {
+                                $score = " $awayscore-$homescore";
+                                $wlt   = $awayname . $tw . $homename . $score;
+                            } elsif ( $awayscore < $homescore ) {
+                                $score = " $awayscore-$homescore";
+                                $wlt   = $awayname . $lt . $homename . $score;
+                            }
+                        } elsif ( $weare eq "both" || $weare eq "neither" ) {
+                            if ( $awayscore > $homescore ) {
+                                $score = " $awayscore-$homescore";
+                                $wlt   = $awayname . $wa . $homename . $score;
+                            } elsif ( $awayscore == $homescore ) {
+                                $score = " $homescore-$awayscore";
+                                $wlt   = $homename . $tw . $awayname . $score;
+                            } elsif ( $awayscore < $homescore ) {
+                                $score = " $homescore-$awayscore";
+                                $wlt   = $homename . $wa . $awayname . $score;
+                            }
+                        } elsif ( $weare eq "home" ) {
+                            if ( $awayscore > $homescore ) {
+                                $score = " $homescore-$awayscore";
+                                $wlt   = $homename . $lt . $awayname . $score;
+                            } elsif ( $awayscore == $homescore ) {
+                                $score = " $homescore-$awayscore";
+                                $wlt   = $homename . $tw . $awayname . $score;
+                            } elsif ( $awayscore < $homescore ) {
+                                $score = " $homescore-$awayscore";
+                                $wlt   = $homename . $wa . $awayname . $score;
+                            }
+                        } else {
+                            die "This cannot happen!\n";
                         }
-                    } elsif ( $weare eq "both" || $weare eq "neither" ) {
-                        if ( $awayscore > $homescore ) {
-			    $score = " $awayscore-$homescore";
-                            $wlt = $awayname . $wa . $homename . $score;
-                        } elsif ( $awayscore == $homescore ) {
-			    $score = " $homescore-$awayscore";
-                            $wlt = $homename . $tw . $awayname . $score;
-                        } elsif ( $awayscore < $homescore ) {
-			    $score = " $homescore-$awayscore";
-                            $wlt = $homename . $wa . $awayname . $score;
-                        }
-                    } elsif ( $weare eq "home" ) {
-                        if ( $awayscore > $homescore ) {
-			    $score = " $homescore-$awayscore";
-                            $wlt = $homename . $lt . $awayname . $score;
-                        } elsif ( $awayscore == $homescore ) {
-			    $score = " $homescore-$awayscore";
-                            $wlt = $homename . $tw . $awayname . $score;
-                        } elsif ( $awayscore < $homescore ) {
-			    $score = " $homescore-$awayscore";
-                            $wlt = $homename . $wa . $awayname . $score;
-                        }
-                    } else {
-                        die "This cannot happen!\n";
-                    }
 
-                    $wlt =~ s/\ \ /\ /g;
-                    print "$wlt at $facilityname $url\n";
-		    }
+                        $wlt =~ s/\ \ /\ /g;
+                        print "$wlt at $facilityname $url\n";
+                    } ## end if ( defined $awayscore...)
                 } ## end foreach my $game (@$games)
             } ## end unless ($error)
             sleep(1);
