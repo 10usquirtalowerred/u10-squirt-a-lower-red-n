@@ -70,6 +70,19 @@ $browser->setopt( CURLOPT_REFERER,     $calendar_url );
 $browser->setopt( CURLOPT_WRITEDATA,   \$calendar_data );
 my $retcode = $browser->perform;
 
+my $facilities_url = 'https://api.leagueathletics.com/' . "api/facilities";
+$facilities_url = $facilities_url . "?org=RYHA.ORG";
+
+my $facilities_data;
+
+$browser->setopt( CURLOPT_URL,       $facilities_url );
+$browser->setopt( CURLOPT_REFERER,   $facilities_url );
+$browser->setopt( CURLOPT_WRITEDATA, \$facilities_data );
+$retcode = $browser->perform;
+
+my $facilities = decode_json $facilities_data;
+my $Facilities = $$facilities{facilities};
+
 if ($DBG) {
 
     my (
@@ -215,19 +228,6 @@ foreach my $event_line (@event_lines) {
         my $State     = "";
         my $Zip       = "";
 
-        my $facilities_url =
-          'https://api.leagueathletics.com/' . "api/facilities";
-        $facilities_url = $facilities_url . "?org=RYHA.ORG";
-
-        my $facilities_data;
-
-        $browser->setopt( CURLOPT_URL,       $facilities_url );
-        $browser->setopt( CURLOPT_REFERER,   $facilities_url );
-        $browser->setopt( CURLOPT_WRITEDATA, \$facilities_data );
-        $retcode = $browser->perform;
-
-        my $facilities = decode_json $facilities_data;
-        my $Facilities = $$facilities{facilities};
         foreach my $Facility (@$Facilities) {
             my $Name = $$Facility{name};
             if ( "$Name" eq "$Location" ) {
