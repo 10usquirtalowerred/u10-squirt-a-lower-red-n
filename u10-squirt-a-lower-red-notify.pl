@@ -237,21 +237,27 @@ foreach my $event_line (@event_lines) {
 
         if ( $onehourlow < $epoch && $epoch < $onehourhigh ) {
             $POST = 1;
-            print "One Hour Notification: $Subject\n";
+            if ($DBG) {
+                print "One Hour Notification: $Subject\n";
+            }
             $message = $message . "'" . $Subject . "' is starting in one hour";
-        }
+        } ## end if ( $onehourlow < $epoch...)
 
         if ( $twohourslow < $epoch && $epoch < $twohourshigh ) {
             $POST = 1;
-            print "Two Hours Notification: $Subject\n";
+            if ($DBG) {
+                print "Two Hours Notification: $Subject\n";
+            }
             $message = $message . "'" . $Subject . "' is starting in two hours";
-        }
+        } ## end if ( $twohourslow < $epoch...)
 
         if ( $onedaylow < $epoch && $epoch < $onedayhigh ) {
             $POST = 1;
-            print "One Day Notification: $Subject\n";
+            if ($DBG) {
+                print "One Day Notification: $Subject\n";
+            }
             $message = $message . "'" . $Subject . "' is starting in one day";
-        }
+        } ## end if ( $onedaylow < $epoch...)
 
         if ($POST) {
             my @chars = ( "A" .. "Z", "a" .. "z", "0" .. "9" );
@@ -270,13 +276,17 @@ foreach my $event_line (@event_lines) {
             $message =~ s/\>/&#62;/g;
             $message =~ s/\"/&#34;/g;
 
-            print "Message: " . $message . "\n";
+            if ($DBG) {
+                print "Message: " . $message . "\n";
+            }
 
             my $jsonmessage = "{\"message\": ";
             $jsonmessage = $jsonmessage . "{\"source_guid\": \"$guid\", ";
             $jsonmessage = $jsonmessage . "\"text\": \"$message\"}}";
 
-            print "JSON Message: " . $jsonmessage . "\n";
+            if ($DBG) {
+                print "JSON Message: " . $jsonmessage . "\n";
+            }
 
             $browser->setopt( CURLOPT_VERBOSE,     0 );
             $browser->setopt( CURLOPT_HEADER,      0 );
@@ -291,7 +301,9 @@ foreach my $event_line (@event_lines) {
             $browser->setopt( CURLOPT_REFERER,    $referer );
             my $retcode = $browser->perform;
 
-            print "\ndone.\n";
+            if ($DBG) {
+                print "\ndone.\n";
+            }
         } ## end if ($POST)
     } ## end if ( $Start_Time ne ""...)
 } ## end foreach my $event_line (@event_lines)
