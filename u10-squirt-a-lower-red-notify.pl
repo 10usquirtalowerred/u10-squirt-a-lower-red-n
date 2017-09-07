@@ -231,7 +231,6 @@ foreach my $event_line (@event_lines) {
         foreach my $Facility (@$Facilities) {
             my $Name = $$Facility{name};
             if ( "$Name" eq "$Location" ) {
-                print Dumper $Facility;
                 if ( $$Facility{address} ) {
                     $Address = $$Facility{address};
                 }
