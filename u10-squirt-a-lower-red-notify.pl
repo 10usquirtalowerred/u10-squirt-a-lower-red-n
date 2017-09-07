@@ -2,6 +2,8 @@
 
 use strict;
 use warnings;
+use Data::Dumper;
+use JSON;
 use POSIX;
 use Text::CSV;
 use WWW::Curl::Easy;
@@ -205,9 +207,60 @@ foreach my $event_line (@event_lines) {
         $Location, $Mileage, $Priority, $Private, $Sensitivity, $Show_time_as
     ) = $csv->fields();
 
-    if ( $Start_Time ne "" && $Start_Time ne "Start Time" ) {
+    if ( $Start_Time ne "" && $Start_Time ne "Start Time" && $Location ne "" ) {
 
-        my $map_url = "https://www.google.com/maps/search/" . $Location;
+        my $map_query = $Location;
+        my $Address   = "";
+        my $City      = "";
+        my $State     = "";
+        my $Zip       = "";
+
+        my $facilities_url =
+          'https://api.leagueathletics.com/' . "api/facilities";
+        $facilities_url = $facilities_url . "?org=RYHA.ORG";
+
+        my $facilities_data;
+
+        $browser->setopt( CURLOPT_URL,       $facilities_url );
+        $browser->setopt( CURLOPT_REFERER,   $facilities_url );
+        $browser->setopt( CURLOPT_WRITEDATA, \$facilities_data );
+        $retcode = $browser->perform;
+
+        my $facilities = decode_json $facilities_data;
+        my $Facilities = $$facilities{facilities};
+        foreach my $Facility (@$Facilities) {
+            my $Name = $$Facility{name};
+            if ( "$Name" eq "$Location" ) {
+                print Dumper $Facility;
+                if ( $$Facility{address} ) {
+                    $Address = $$Facility{address};
+                }
+                if ( $$Facility{city} ) {
+                    $City = $$Facility{city};
+                }
+                if ( $$Facility{state} ) {
+                    $State = $$Facility{state};
+                }
+                if ( $$Facility{zip} ) {
+                    $Zip = $$Facility{zip};
+                }
+            } ## end if ( "$Name" eq "$Location")
+        } ## end foreach my $Facility (@$Facilities)
+
+        if ($Address) {
+            $map_query = $map_query . ", " . $Address;
+        }
+        if ($City) {
+            $map_query = $map_query . ", " . $City;
+        }
+        if ($State) {
+            $map_query = $map_query . ", " . $State;
+        }
+        if ($Zip) {
+            $map_query = $map_query . " " . $Zip;
+        }
+
+        my $map_url = "https://www.google.com/maps/search/" . $map_query;
         $map_url =~ s/\ /\+/g;
         if ($DBG) {
             print "\n";
