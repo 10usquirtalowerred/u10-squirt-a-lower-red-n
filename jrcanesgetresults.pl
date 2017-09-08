@@ -8,8 +8,14 @@ use Net::Twitter::Lite::WithAPIv1_1;
 use Scalar::Util 'blessed';
 use WWW::Curl::Easy;
 
-my $posted   = "jrcanespostedresults.txt";
-my $authfile = "../twitterauth.txt";
+my $DBG = 1;
+
+my $posted   = "../jrcanespostedresults.txt";
+my $authfile = "../twitterauth-prod.txt";
+
+if ($DBG) {
+    $authfile = "../twitterauth-devqa.txt";
+}
 
 unless ( -f $posted ) {
     unless ( open( POSTED, ">$posted" ) ) {
@@ -26,12 +32,14 @@ my @posted = (<POSTED>);
 
 close(POSTED);
 
-print "Already posted results...";
-foreach my $posted (@posted) {
-    chomp $posted;
-    print " $posted";
-}
-print ".\n";
+if ($DBG) {
+    print "Already posted results...";
+    foreach my $posted (@posted) {
+        chomp $posted;
+        print " $posted";
+    }
+    print ".\n";
+} ## end if ($DBG)
 
 my %auth;
 
@@ -96,7 +104,9 @@ foreach my $division (@$divisions) {
 
             my $ID   = $$Team{ID};
             my $Name = $$Team{Name};
-            print "== $ID = $Name ==\n";
+            if ($DBG) {
+                print "== $ID = $Name ==\n";
+            }
 
             my $results_url = $referer . "api/results";
             $results_url = $results_url . "?TeamID=" . $ID . "&org=" . $org;
@@ -142,10 +152,11 @@ foreach my $division (@$divisions) {
                         && $alreadyposted == 0 )
                     {
 
-                        print
-                          "================================================== "
-                          . $gameid
-                          . " ==================================================\n";
+                        if ($DBG) {
+                            print "=========================================== "
+                              . $gameid
+                              . " ==========================================\n";
+                        }
 
                         my $facilityname = $$facility{name};
 
@@ -224,6 +235,7 @@ foreach my $division (@$divisions) {
                         print POSTED $gameid . "\n";
 
                         close(POSTED);
+                        exit;
                         sleep(1);
                     } ## end if ( defined $awayscore...)
                     sleep(1);
