@@ -8,7 +8,7 @@ use Net::Twitter::Lite::WithAPIv1_1;
 use Scalar::Util 'blessed';
 use WWW::Curl::Easy;
 
-my $DBG = 1;
+my $DBG = 0;
 
 my $posted   = "../jrcanespostedresults.txt";
 my $authfile = "../twitterauth-prod.txt";
