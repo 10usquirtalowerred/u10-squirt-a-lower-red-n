@@ -64,6 +64,7 @@ my $token           = "$auth{token}";
 my $token_secret    = "$auth{token_secret}";
 
 my $nt = Net::Twitter::Lite::WithAPIv1_1->new(
+    ssl                 => 1,
     consumer_key        => $consumer_key,
     consumer_secret     => $consumer_secret,
     access_token        => $token,
