@@ -225,8 +225,10 @@ foreach my $division (@$divisions) {
                         }
 
                         $wlt =~ s/\ \ /\ /g;
-                        my $tweet = "$wlt at $facilityname $url";
-                        print "Posting: " . $tweet . "\n";
+                        my $tweet       = "$wlt at $facilityname $url";
+                        my $tweetlength = length($tweet);
+
+                        print "Posting [$tweetlength]: " . $tweet . "\n";
                         my $result = $nt->update("$tweet");
 
                         unless ( open( POSTED, ">>$posted" ) ) {
