@@ -185,8 +185,14 @@ foreach my $division (@$divisions) {
                         my $lt = " lost to ";
                         my $wlt;
                         my $score;
-                        my $url = "http://ryha.org/results.asp?";
-                        $url = $url . "team=" . $ID . "&org=RYHA.ORG";
+
+                        #my $url = "http://ryha.org/results.asp?";
+                        #$url = $url . "team=" . $ID . "&org=RYHA.ORG";
+                        my $url = "http://ryha.org/GameDetails.asp?";
+                        $url =
+                            $url . "game="
+                          . $gameid
+                          . "&AssocID=3735&org=RYHA.ORG";
                         if ( $weare eq "away" ) {
                             if ( $awayscore > $homescore ) {
                                 $score = " $awayscore-$homescore";
