@@ -6,7 +6,7 @@ use Data::Dumper;
 use Net::Twitter::Lite::WithAPIv1_1;
 use XML::FeedPP;
 
-my $DBG = 1;
+my $DBG = 0;
 
 my $posted   = "../jrcanespostednews.txt";
 my $authfile = "../twitterauth-prod.txt";
